@@ -70,9 +70,9 @@ namespace RedisSharp {
 			if (value.Length > 1073741824)
 				throw new ArgumentException ("value exceeds 1G", "value");
 	
-			if (!SendDataCommand (value, "SET {0} {1}\r\n", key, value.Length))
+			if (!SendDataCommand (value, "SET {0} ", key))
 				throw new Exception ("Unable to connect");
-			ExpectSuccess ();
+			ExpectSuccess ("OK");
 		}
 	
 		public bool SetNX (string key, string value)
@@ -157,7 +157,7 @@ namespace RedisSharp {
 			if (value.Length > 1073741824)
 				throw new ArgumentException ("value exceeds 1G", "value");
 	
-			if (!SendDataCommand (value, "GETSET {0} {1}\r\n", key, value.Length))
+			if (!SendDataCommand (value, "GETSET {0} ", key))
 				throw new Exception ("Unable to connect");
 	
 			return ReadData ();
@@ -367,7 +367,7 @@ namespace RedisSharp {
 		#region Set commands
 		public bool AddToSet (string key, byte[] member)
 		{
-			return SendDataExpectInt(member, "SADD {0} {1}\r\n", key, member.Length) > 0;
+			return SendDataExpectInt(member, "SADD {0} ", key) > 0;
 		}
 	
 		public bool AddToSet (string key, string member)
@@ -382,7 +382,7 @@ namespace RedisSharp {
 	
 		public bool IsMemberOfSet (string key, byte[] member)
 		{
-			return SendDataExpectInt (member, "SISMEMBER {0} {1}\r\n", key, member.Length) > 0;
+			return SendDataExpectInt (member, "SISMEMBER {0} ", key) > 0;
 		}
 	
 		public bool IsMemberOfSet(string key, string member)
@@ -407,7 +407,7 @@ namespace RedisSharp {
 	
 		public bool RemoveFromSet (string key, byte[] member)
 		{
-			return SendDataExpectInt (member, "SREM {0} {1}\r\n", key, member.Length) > 0;
+			return SendDataExpectInt (member, "SREM {0} ", key) > 0;
 		}
 	
 		public bool RemoveFromSet (string key, string member)
@@ -471,7 +471,7 @@ namespace RedisSharp {
 		
 		public bool MoveMemberToSet (string srcKey, string destKey, byte[] member)
 		{
-			return SendDataExpectInt(member, "SMOVE {0} {1} {2}\r\n", srcKey, destKey, member.Length) > 0;
+			return SendDataExpectInt(member, "SMOVE {0} {1} ", srcKey, destKey) > 0;
 		}
 		#endregion
 		

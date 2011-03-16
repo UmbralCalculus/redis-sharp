@@ -14,9 +14,12 @@ class Test {
         Redis r;
 		
 		
-        if (args.Length >= 2)
+        if (args.Length >= 1)
         {
-            r = new Redis(args[0], Convert.ToInt16(args[1]));
+            if (args.Length >= 2)
+                r = new Redis(args[0], Convert.ToInt16(args[1]));
+            else
+                r = new Redis(args[0]);
         } else {
             r = new Redis();
         }

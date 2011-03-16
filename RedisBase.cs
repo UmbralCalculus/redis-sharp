@@ -159,7 +159,7 @@ namespace RedisSharp {
 			var s = args.Length > 0 ? String.Format (cmd, args) : cmd;
 			byte [] r = Encoding.UTF8.GetBytes (s);
 			try {
-				Log ("S: " + String.Format (cmd, args));
+				Log ("S: " + s + (data==null?"nulldata":Encoding.UTF8.GetString(data)) );
 				socket.Send (r);
 				if (data != null){
 					socket.Send (data);
@@ -210,10 +210,26 @@ namespace RedisSharp {
 				throw new ResponseException ("No more data");
 	
 			var s = ReadLine ();
-			Log ((char)c + s);
+			Log ("R: " + (char)c + s);
 			if (c == '-')
 				throw new ResponseException (s.StartsWith ("ERR") ? s.Substring (4) : s);
 		}
+
+        protected void ExpectSuccess( string result )
+        {
+            int c = bstream.ReadByte();
+            if (c == -1)
+                throw new ResponseException("No more data");
+
+            var s = ReadLine();
+            Log((char)c + s);
+            if (c == '-')
+                throw new ResponseException(s.StartsWith("ERR") ? s.Substring(4) : s);
+            if (!result.Equals(s))
+            {
+                throw new ResponseException( String.Format("Expected {0}, received {1}", result, s) );
+            }
+        }
 		
 		protected void SendExpectSuccess (string cmd, params object [] args)
 		{
@@ -291,8 +307,9 @@ namespace RedisSharp {
 		{
 			if (!SendCommand (cmd, args))
 				throw new Exception ("Unable to connect");
-	
-			return ReadLine ();
+            string result = ReadLine();
+            Log("R: " + result);
+			return result;
 		}	
 		
 		protected byte [] SendExpectData (byte[] data, string cmd, params object [] args)
@@ -332,6 +349,7 @@ namespace RedisSharp {
 					while (bytesRead < n);
 					if (bstream.ReadByte () != '\r' || bstream.ReadByte () != '\n')
 						throw new ResponseException ("Invalid termination");
+                    Log("R: {0}", Encoding.UTF8.GetString(retbuf));
 					return retbuf;
 				}
 				throw new ResponseException ("Invalid length");
